@@ -1839,8 +1839,8 @@ void OMR::Compilation::resetVisitCounts(vcount_t count, TR::TreeTop *start)
 
 void OMR::Compilation::reportFailure(const char *reason)
    {
-   traceMsg(self(), "Compilation Failed Because: %s\n", reason);
    if (self()->getOption(TR_PrintErrorInfoOnCompFailure))
+      traceMsg(self(), "Compilation Failed Because: %s\n", reason);
       fprintf(stderr, "Compilation Failed Because: %s\n", reason);
    }
 

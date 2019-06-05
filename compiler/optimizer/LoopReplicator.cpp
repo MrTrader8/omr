@@ -314,7 +314,8 @@ bool TR_LoopReplicator::isWellFormedLoop(TR_RegionStructure *region, TR_Structur
 
    if (_maxNestingDepth > MAX_REPLICATION_NESTING_DEPTH)
       {
-      traceMsg(comp(), "for loop (%d), max nest depth thresholds exceeded\n", region->getNumber());
+      if (trace())
+         traceMsg(comp(), "for loop (%d), max nest depth thresholds exceeded\n", region->getNumber());
       return false;
       }
 
@@ -322,6 +323,7 @@ bool TR_LoopReplicator::isWellFormedLoop(TR_RegionStructure *region, TR_Structur
    //
    if ((numBlocks*MAX_REPLICATION_GROWTH_FACTOR) > MAX_REPLICATION_GROWTH_SIZE)
       {
+      if (trace())
       traceMsg(comp(), "for loop (%d), loop too big, thresholds exceeded\n", region->getNumber());
       return false;
       }
