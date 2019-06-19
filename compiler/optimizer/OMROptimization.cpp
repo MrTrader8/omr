@@ -575,3 +575,8 @@ OMR::Optimization::nodeIsOrderDependent(TR::Node *node, uint32_t depth, bool has
             ((node->getReferenceCount() > 1) || hasCommonedAncestor)) ||
            ((!node->getOpCode().isLoadConst() || constNeedsAnchor) && depth >= MAX_DEPTH_FOR_SMART_ANCHORING));
 }
+
+bool OMR::Optimization::traceAny()
+   {
+      return (self()->trace() || self()->comp()->getOptions()->getAnyOption(TR_TraceAll));
+   }

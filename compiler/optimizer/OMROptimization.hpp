@@ -127,6 +127,7 @@ class OMR_EXTENSIBLE Optimization: public TR_HasRandomGenerator
 
    inline bool                trace();
    void                       setTrace(bool trace = true);
+   bool                       traceAny();
 
    bool                       getLastRun();
 
