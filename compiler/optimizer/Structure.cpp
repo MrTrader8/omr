@@ -1208,7 +1208,9 @@ void TR_RegionStructure::checkForInternalCycles()
    for (auto itr = _subNodes.begin(), end = _subNodes.end(); itr != end; ++itr)
       regionNodes.set((*itr)->getNumber());
 
+   printf("Started Compiling: %s" ,comp()->signature());
    setContainsInternalCycles(findCycle(getEntry(), regionNodes, nodesSeenOnPath, nodesCleared, getNumber()));
+   printf("Finished Compiling: %s" ,comp()->signature());
    }
 
 bool TR_RegionStructure::hasExceptionOutEdges()
