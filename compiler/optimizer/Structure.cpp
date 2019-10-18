@@ -51,6 +51,7 @@
 #include "optimizer/DataFlowAnalysis.hpp"
 #include "optimizer/LocalAnalysis.hpp"
 #include "ras/Debug.hpp"
+#include "codegen/Analyser.hpp"
 
 #define OPT_DETAILS "O^O STRUCTURE: "
 
@@ -1168,10 +1169,21 @@ void TR_RegionStructure::addGlobalRegisterCandidateToExits(TR_RegisterCandidate 
 
 static bool findCycle(TR_StructureSubGraphNode *node, TR_BitVector &regionNodes, TR_BitVector &nodesSeenOnPath, TR_BitVector &nodesCleared, int32_t entryNode)
    {
-   if (nodesSeenOnPath.get(node->getNumber()))
+   TR::Compilation *comp2 = node->getStructure()->comp();
+
+   static int depth = 0;
+   depth++;
+   if(comp2->getOption(TR_TraceNodeFlags));
+      traceMsg(comp2,"Depth: %d",depth);
+
+   if (nodesSeenOnPath.get(node->getNumber())){
+      depth--;
       return true;             // An internal cycle found
-   if (nodesCleared.get(node->getNumber()))
-      return false;            // This node is already known not to be in a cycle
+      }
+   if (nodesCleared.get(node->getNumber())){
+      depth--;
+      return false;
+      }            // This node is already known not to be in a cycle
 
    nodesSeenOnPath.set(node->getNumber());
 
@@ -1181,19 +1193,35 @@ static bool findCycle(TR_StructureSubGraphNode *node, TR_BitVector &regionNodes,
       TR_StructureSubGraphNode *succ = toStructureSubGraphNode((*edge)->getTo());
       if (succ->getNumber() != entryNode && regionNodes.get(succ->getNumber()) &&
           findCycle(succ,regionNodes,nodesSeenOnPath,nodesCleared,entryNode))
+<<<<<<< HEAD
+=======
+         {
+         depth--;
+>>>>>>> b232a940a... Added Tracing
          return true;
+         }
       }
    for (auto edge = node->getExceptionSuccessors().begin(); edge != node->getExceptionSuccessors().end(); ++edge)
       {
       TR_ASSERT((*edge)->getTo()->asStructureSubGraphNode(),"Expecting a CFG node which can be downcast to StructureSubGraphNode");
       TR_StructureSubGraphNode *succ = toStructureSubGraphNode((*edge)->getTo());
+<<<<<<< HEAD
       if (/* succ->getNumber() != entryNode && */ regionNodes.get(succ->getNumber()) &&
           findCycle(succ,regionNodes,nodesSeenOnPath,nodesCleared,entryNode))
+=======
+
+      if (/* succ->getNumber() != entryNode && */ regionNodes.get(succ->getNumber()) &&
+          findCycle(succ,regionNodes,nodesSeenOnPath,nodesCleared,entryNode))
+         {
+         depth--;
+>>>>>>> b232a940a... Added Tracing
          return true;
+         }
       }
 
    nodesSeenOnPath.reset(node->getNumber());
    nodesCleared.set(node->getNumber());
+   depth--;
    return false;
    }
 
@@ -1208,7 +1236,24 @@ void TR_RegionStructure::checkForInternalCycles()
    for (auto itr = _subNodes.begin(), end = _subNodes.end(); itr != end; ++itr)
       regionNodes.set((*itr)->getNumber());
 
+<<<<<<< HEAD
    setContainsInternalCycles(findCycle(getEntry(), regionNodes, nodesSeenOnPath, nodesCleared, getNumber()));
+=======
+   
+   if (comp()->getOption(TR_TraceNodeFlags)){
+         traceMsg(comp(),"Started Compiling: %s \n" , comp()->signature());
+         fflush(stdout);
+   }
+   
+   setContainsInternalCycles(findCycle(getEntry(), regionNodes, nodesSeenOnPath, nodesCleared, getNumber()));
+   
+   if (comp()->getOption(TR_TraceNodeFlags)){
+         traceMsg(comp(),"Finished Compiling: %s \n" , comp()->signature());
+         fflush(stdout);
+   }
+   
+
+>>>>>>> b232a940a... Added Tracing
    }
 
 bool TR_RegionStructure::hasExceptionOutEdges()
