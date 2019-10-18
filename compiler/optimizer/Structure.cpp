@@ -1179,9 +1179,11 @@ static bool findCycle(TR::Compilation *comp,TR_StructureSubGraphNode *node, TR_B
       {
       TR_ASSERT((*edge)->getTo()->asStructureSubGraphNode(),"Expecting a CFG node which can be downcast to StructureSubGraphNode");
       TR_StructureSubGraphNode *succ = toStructureSubGraphNode((*edge)->getTo());
-      if(comp->getOption(TR_TraceInfo)){
+      
+      /*if(comp->getOption(TR_TraceInfo)){
          traceMsg(comp,"First Loop: SubGraphNumber: (%d) entryNode: (%d)\n",succ->getNumber(), entryNode);
-      }
+      }*/
+      
       if (succ->getNumber() != entryNode && regionNodes.get(succ->getNumber()) &&
           findCycle(comp,succ,regionNodes,nodesSeenOnPath,nodesCleared,entryNode))
          return true;
@@ -1190,9 +1192,11 @@ static bool findCycle(TR::Compilation *comp,TR_StructureSubGraphNode *node, TR_B
       {
       TR_ASSERT((*edge)->getTo()->asStructureSubGraphNode(),"Expecting a CFG node which can be downcast to StructureSubGraphNode");
       TR_StructureSubGraphNode *succ = toStructureSubGraphNode((*edge)->getTo());
+      
       if(comp->getOption(TR_TraceInfo)){
          traceMsg(comp,"Second Loop: regionNodes: (%d)\n",regionNodes.get(succ->getNumber()));
       }
+
       if (/* succ->getNumber() != entryNode && */ regionNodes.get(succ->getNumber()) &&
           findCycle(comp,succ,regionNodes,nodesSeenOnPath,nodesCleared,entryNode))
          return true;
@@ -1215,14 +1219,15 @@ void TR_RegionStructure::checkForInternalCycles()
       regionNodes.set((*itr)->getNumber());
 
    if (comp()->getOption(TR_TraceInfo)){
-         traceMsg(comp(),"Started Compiling: %s" ,comp()->signature());
+         traceMsg(comp(),"Started Compiling: %s" , comp()->signature()); 
    }
-
+   
    setContainsInternalCycles(findCycle(comp(), getEntry(), regionNodes, nodesSeenOnPath, nodesCleared, getNumber()));
 
    if (comp()->getOption(TR_TraceInfo)){
-         traceMsg(comp(),"Finished Compiling: %s" ,comp()->signature());
+         traceMsg(comp(),"Finished Compiling: %s" , comp()->signature());
    }
+   
 
    }
 
