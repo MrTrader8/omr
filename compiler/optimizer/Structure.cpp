@@ -1218,11 +1218,11 @@ void TR_RegionStructure::checkForInternalCycles()
    for (auto itr = _subNodes.begin(), end = _subNodes.end(); itr != end; ++itr)
       regionNodes.set((*itr)->getNumber());
 
-   /*
+   
    if (comp()->getOption(TR_TraceInfo)){
          traceMsg(comp(),"Started Compiling: %s" , comp()->signature()); 
    }
-   */
+   
    setContainsInternalCycles(findCycle(comp(), getEntry(), regionNodes, nodesSeenOnPath, nodesCleared, getNumber()));
    /*
    if (comp()->getOption(TR_TraceInfo)){
