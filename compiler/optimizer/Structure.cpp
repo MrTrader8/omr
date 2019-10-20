@@ -1196,7 +1196,7 @@ static bool findCycle(TR::Compilation *comp,TR_StructureSubGraphNode *node, TR_B
       if(comp->getOption(TR_TraceInfo)){
          traceMsg(comp,"Second Loop: regionNodes: (%d)\n",regionNodes.get(succ->getNumber()));
       }
-      /*
+      */
       if (/* succ->getNumber() != entryNode && */ regionNodes.get(succ->getNumber()) &&
           findCycle(comp,succ,regionNodes,nodesSeenOnPath,nodesCleared,entryNode))
          return true;
@@ -1224,10 +1224,10 @@ void TR_RegionStructure::checkForInternalCycles()
    }
    
    setContainsInternalCycles(findCycle(comp(), getEntry(), regionNodes, nodesSeenOnPath, nodesCleared, getNumber()));
-   /*
+   
    if (comp()->getOption(TR_TraceInfo)){
          traceMsg(comp(),"Finished Compiling: %s" , comp()->signature());
-   }*/
+   }
    
 
    }
