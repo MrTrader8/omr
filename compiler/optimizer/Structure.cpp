@@ -1224,10 +1224,10 @@ void TR_RegionStructure::checkForInternalCycles()
    }
    
    setContainsInternalCycles(findCycle(comp(), getEntry(), regionNodes, nodesSeenOnPath, nodesCleared, getNumber()));
-   /*
+   
    if (comp()->getOption(TR_TraceInfo)){
          traceMsg(comp(),"Finished Compiling: %s" , comp()->signature());
-   }*/
+   }
    
 
    }
