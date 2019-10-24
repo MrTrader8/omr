@@ -51,7 +51,6 @@
 #include "optimizer/DataFlowAnalysis.hpp"
 #include "optimizer/LocalAnalysis.hpp"
 #include "ras/Debug.hpp"
-#include "codegen/Analyser.hpp"
 
 #define OPT_DETAILS "O^O STRUCTURE: "
 
@@ -1173,9 +1172,8 @@ static bool findCycle(TR_StructureSubGraphNode *node, TR_BitVector &regionNodes,
 
    static int depth = 0;
    depth++;
-   if(comp2->getOption(TR_TraceNodeFlags));
-      traceMsg(comp2,"Depth: %d",depth);
 
+   
    if (nodesSeenOnPath.get(node->getNumber())){
       depth--;
       return true;             // An internal cycle found
@@ -1191,13 +1189,12 @@ static bool findCycle(TR_StructureSubGraphNode *node, TR_BitVector &regionNodes,
       {
       TR_ASSERT((*edge)->getTo()->asStructureSubGraphNode(),"Expecting a CFG node which can be downcast to StructureSubGraphNode");
       TR_StructureSubGraphNode *succ = toStructureSubGraphNode((*edge)->getTo());
+
+
       if (succ->getNumber() != entryNode && regionNodes.get(succ->getNumber()) &&
           findCycle(succ,regionNodes,nodesSeenOnPath,nodesCleared,entryNode))
-<<<<<<< HEAD
-=======
          {
          depth--;
->>>>>>> b232a940a... Added Tracing
          return true;
          }
       }
@@ -1205,16 +1202,11 @@ static bool findCycle(TR_StructureSubGraphNode *node, TR_BitVector &regionNodes,
       {
       TR_ASSERT((*edge)->getTo()->asStructureSubGraphNode(),"Expecting a CFG node which can be downcast to StructureSubGraphNode");
       TR_StructureSubGraphNode *succ = toStructureSubGraphNode((*edge)->getTo());
-<<<<<<< HEAD
-      if (/* succ->getNumber() != entryNode && */ regionNodes.get(succ->getNumber()) &&
-          findCycle(succ,regionNodes,nodesSeenOnPath,nodesCleared,entryNode))
-=======
 
       if (/* succ->getNumber() != entryNode && */ regionNodes.get(succ->getNumber()) &&
           findCycle(succ,regionNodes,nodesSeenOnPath,nodesCleared,entryNode))
          {
          depth--;
->>>>>>> b232a940a... Added Tracing
          return true;
          }
       }
@@ -1236,24 +1228,8 @@ void TR_RegionStructure::checkForInternalCycles()
    for (auto itr = _subNodes.begin(), end = _subNodes.end(); itr != end; ++itr)
       regionNodes.set((*itr)->getNumber());
 
-<<<<<<< HEAD
-   setContainsInternalCycles(findCycle(getEntry(), regionNodes, nodesSeenOnPath, nodesCleared, getNumber()));
-=======
-   
-   if (comp()->getOption(TR_TraceNodeFlags)){
-         traceMsg(comp(),"Started Compiling: %s \n" , comp()->signature());
-         fflush(stdout);
-   }
-   
-   setContainsInternalCycles(findCycle(getEntry(), regionNodes, nodesSeenOnPath, nodesCleared, getNumber()));
-   
-   if (comp()->getOption(TR_TraceNodeFlags)){
-         traceMsg(comp(),"Finished Compiling: %s \n" , comp()->signature());
-         fflush(stdout);
-   }
-   
 
->>>>>>> b232a940a... Added Tracing
+   setContainsInternalCycles(findCycle(getEntry(), regionNodes, nodesSeenOnPath, nodesCleared, getNumber()));
    }
 
 bool TR_RegionStructure::hasExceptionOutEdges()
