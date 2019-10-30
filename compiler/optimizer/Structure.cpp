@@ -1168,18 +1168,21 @@ void TR_RegionStructure::addGlobalRegisterCandidateToExits(TR_RegisterCandidate 
 
 static bool findCycle(TR_StructureSubGraphNode *node, TR_BitVector &regionNodes, TR_BitVector &nodesSeenOnPath, TR_BitVector &nodesCleared, int32_t entryNode)
    {
-   TR::Compilation *comp2 = node->getStructure()->comp();
 
    static int depth = 0;
-   depth++;
+
+   if (depth == 30){
+      printf("Hello\n");
+   }
+   //depth++;
 
    
    if (nodesSeenOnPath.get(node->getNumber())){
-      depth--;
+      //depth--;
       return true;             // An internal cycle found
       }
    if (nodesCleared.get(node->getNumber())){
-      depth--;
+      //depth--;
       return false;
       }            // This node is already known not to be in a cycle
 
@@ -1194,7 +1197,7 @@ static bool findCycle(TR_StructureSubGraphNode *node, TR_BitVector &regionNodes,
       if (succ->getNumber() != entryNode && regionNodes.get(succ->getNumber()) &&
           findCycle(succ,regionNodes,nodesSeenOnPath,nodesCleared,entryNode))
          {
-         depth--;
+         //depth--;
          return true;
          }
       }
@@ -1206,14 +1209,14 @@ static bool findCycle(TR_StructureSubGraphNode *node, TR_BitVector &regionNodes,
       if (/* succ->getNumber() != entryNode && */ regionNodes.get(succ->getNumber()) &&
           findCycle(succ,regionNodes,nodesSeenOnPath,nodesCleared,entryNode))
          {
-         depth--;
+         //depth--;
          return true;
          }
       }
 
    nodesSeenOnPath.reset(node->getNumber());
    nodesCleared.set(node->getNumber());
-   depth--;
+   //depth--;
    return false;
    }
 
