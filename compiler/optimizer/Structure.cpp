@@ -1168,12 +1168,7 @@ void TR_RegionStructure::addGlobalRegisterCandidateToExits(TR_RegisterCandidate 
 
 static bool findCycle(TR_StructureSubGraphNode *node, TR_BitVector &regionNodes, TR_BitVector &nodesSeenOnPath, TR_BitVector &nodesCleared, int32_t entryNode)
    {
-
-   static int depth = 0;
-
-   if (depth == 30){
-      printf("Hello\n");
-   }
+   
    //depth++;
 
    
@@ -1231,8 +1226,17 @@ void TR_RegionStructure::checkForInternalCycles()
    for (auto itr = _subNodes.begin(), end = _subNodes.end(); itr != end; ++itr)
       regionNodes.set((*itr)->getNumber());
 
-
+   if (comp()->getOption(TR_TraceNodeFlags)){
+      traceMsg(comp(),"Started Compiling: %s\n", comp()->signature());
+      fflush(stdout);
+   }
    setContainsInternalCycles(findCycle(getEntry(), regionNodes, nodesSeenOnPath, nodesCleared, getNumber()));
+   
+   if (comp()->getOption(TR_TraceNodeFlags)){
+      traceMsg(comp(),"Finished Compiling: %s\n", comp()->signature());
+      fflush(stdout);
+   }
+
    }
 
 bool TR_RegionStructure::hasExceptionOutEdges()
