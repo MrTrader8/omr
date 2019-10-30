@@ -54,13 +54,14 @@
 
 #define OPT_DETAILS "O^O STRUCTURE: "
 
-
 // The "getKind" methods are made non-inline to identify this as the home for the
 // vfts for this class hierarchy.
 //
 TR_Structure::Kind TR_Structure::getKind()                  {return Blank;}
 TR_Structure::Kind TR_BlockStructure::getKind()             {return Block;}
 TR_Structure::Kind TR_RegionStructure::getKind()            {return Region;}
+
+extern int depth_counter = 0;
 
 
 TR_BlockStructure::TR_BlockStructure(TR::Compilation * comp, int32_t index, TR::Block *b) :
@@ -1168,18 +1169,16 @@ void TR_RegionStructure::addGlobalRegisterCandidateToExits(TR_RegisterCandidate 
 
 static bool findCycle(TR_StructureSubGraphNode *node, TR_BitVector &regionNodes, TR_BitVector &nodesSeenOnPath, TR_BitVector &nodesCleared, int32_t entryNode)
    {
-   TR::Compilation *comp2 = node->getStructure()->comp();
 
-   static int depth = 0;
-   depth++;
+   depth_counter++;
+   if (node->getStructure()->comp()->getOption(TR_DisableZ13)){
+      printf("Hello\n");
+   }
 
-   
    if (nodesSeenOnPath.get(node->getNumber())){
-      depth--;
       return true;             // An internal cycle found
       }
    if (nodesCleared.get(node->getNumber())){
-      depth--;
       return false;
       }            // This node is already known not to be in a cycle
 
@@ -1190,11 +1189,9 @@ static bool findCycle(TR_StructureSubGraphNode *node, TR_BitVector &regionNodes,
       TR_ASSERT((*edge)->getTo()->asStructureSubGraphNode(),"Expecting a CFG node which can be downcast to StructureSubGraphNode");
       TR_StructureSubGraphNode *succ = toStructureSubGraphNode((*edge)->getTo());
 
-
       if (succ->getNumber() != entryNode && regionNodes.get(succ->getNumber()) &&
           findCycle(succ,regionNodes,nodesSeenOnPath,nodesCleared,entryNode))
          {
-         depth--;
          return true;
          }
       }
@@ -1206,14 +1203,12 @@ static bool findCycle(TR_StructureSubGraphNode *node, TR_BitVector &regionNodes,
       if (/* succ->getNumber() != entryNode && */ regionNodes.get(succ->getNumber()) &&
           findCycle(succ,regionNodes,nodesSeenOnPath,nodesCleared,entryNode))
          {
-         depth--;
          return true;
          }
       }
 
    nodesSeenOnPath.reset(node->getNumber());
    nodesCleared.set(node->getNumber());
-   depth--;
    return false;
    }
 
@@ -1228,8 +1223,11 @@ void TR_RegionStructure::checkForInternalCycles()
    for (auto itr = _subNodes.begin(), end = _subNodes.end(); itr != end; ++itr)
       regionNodes.set((*itr)->getNumber());
 
-
+   depth_counter = 0;
    setContainsInternalCycles(findCycle(getEntry(), regionNodes, nodesSeenOnPath, nodesCleared, getNumber()));
+   if (comp()->getOption(TR_DisableZ13)){
+      printf("Current depth: %d \n",depth_counter);
+   }
    }
 
 bool TR_RegionStructure::hasExceptionOutEdges()
