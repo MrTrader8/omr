@@ -1171,11 +1171,9 @@ static bool findCycle(TR_StructureSubGraphNode *node, TR_BitVector &regionNodes,
    {
 
    depth_counter++;
-   if (node->getStructure()->comp()->getOption(TR_DisableZ13)){
-      printf("Hello\n");
-   }
 
    if (nodesSeenOnPath.get(node->getNumber())){
+      //printf("Internal Cycle Found with Method:%s\n", node->getStructure()->comp()->signature());
       return true;             // An internal cycle found
       }
    if (nodesCleared.get(node->getNumber())){
@@ -1224,10 +1222,13 @@ void TR_RegionStructure::checkForInternalCycles()
       regionNodes.set((*itr)->getNumber());
 
    depth_counter = 0;
+
    setContainsInternalCycles(findCycle(getEntry(), regionNodes, nodesSeenOnPath, nodesCleared, getNumber()));
+
    if (comp()->getOption(TR_DisableZ13)){
       printf("Current depth: %d \n",depth_counter);
    }
+
    }
 
 bool TR_RegionStructure::hasExceptionOutEdges()
