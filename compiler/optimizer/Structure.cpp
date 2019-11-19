@@ -1210,6 +1210,49 @@ static bool findCycle(TR_StructureSubGraphNode *node, TR_BitVector &regionNodes,
    return false;
    }
 
+static bool findCycle2(TR_StructureSubGraphNode *node, TR_BitVector &regionNodes, TR_BitVector &nodesSeenOnPath, TR_BitVector &nodesCleared, int32_t entryNode)
+   {
+
+   if (nodesSeenOnPath.get(node->getNumber())){
+         if(node->getStructure()->comp()->getOption(TR_DisableZ13)){
+            printf("Internal Cycle Found with Method:%s\n", node->getStructure()->comp()->signature());
+         }
+      return true;             // An internal cycle found
+      }
+   if (nodesCleared.get(node->getNumber())){
+      return false;
+      }            // This node is already known not to be in a cycle
+
+   nodesSeenOnPath.set(node->getNumber());
+
+   for (auto edge = node->getSuccessors().begin(); edge != node->getSuccessors().end(); ++edge)
+      {
+      TR_ASSERT((*edge)->getTo()->asStructureSubGraphNode(),"Expecting a CFG node which can be downcast to StructureSubGraphNode");
+      TR_StructureSubGraphNode *succ = toStructureSubGraphNode((*edge)->getTo());
+
+      if (succ->getNumber() != entryNode && regionNodes.get(succ->getNumber()) &&
+          findCycle2(succ,regionNodes,nodesSeenOnPath,nodesCleared,entryNode))
+         {
+         return true;
+         }
+      }
+   for (auto edge = node->getExceptionSuccessors().begin(); edge != node->getExceptionSuccessors().end(); ++edge)
+      {
+      TR_ASSERT((*edge)->getTo()->asStructureSubGraphNode(),"Expecting a CFG node which can be downcast to StructureSubGraphNode");
+      TR_StructureSubGraphNode *succ = toStructureSubGraphNode((*edge)->getTo());
+
+      if (/* succ->getNumber() != entryNode && */ regionNodes.get(succ->getNumber()) &&
+          findCycle2(succ,regionNodes,nodesSeenOnPath,nodesCleared,entryNode))
+         {
+         return true;
+         }
+      }
+
+   nodesSeenOnPath.reset(node->getNumber());
+   nodesCleared.set(node->getNumber());
+   return false;
+   }
+
 void TR_RegionStructure::checkForInternalCycles()
    {
    TR::StackMemoryRegion stackMemoryRegion(*trMemory());
@@ -1223,7 +1266,16 @@ void TR_RegionStructure::checkForInternalCycles()
 
    depth_counter = 0;
 
-   setContainsInternalCycles(findCycle(getEntry(), regionNodes, nodesSeenOnPath, nodesCleared, getNumber()));
+   bool copy = findCycle2(getEntry(), regionNodes, nodesSeenOnPath, nodesCleared, getNumber());
+   bool actual = findCycle(getEntry(), regionNodes, nodesSeenOnPath, nodesCleared, getNumber());
+
+   if (comp()->getOption(TR_DisableZ13)){
+      printf("findCycle2: %s\n", copy ? "true" : "false");
+      printf("findCycle: %s\n", actual ? "true" : "false");
+   }
+
+
+   setContainsInternalCycles(actual);
 
    if (comp()->getOption(TR_DisableZ13)){
       printf("Current depth: %d \n",depth_counter);
