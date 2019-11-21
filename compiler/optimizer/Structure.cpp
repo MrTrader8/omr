@@ -1170,8 +1170,6 @@ void TR_RegionStructure::addGlobalRegisterCandidateToExits(TR_RegisterCandidate 
 static bool findCycle(TR_StructureSubGraphNode *node, TR_BitVector &regionNodes, TR_BitVector &nodesSeenOnPath, TR_BitVector &nodesCleared, int32_t entryNode)
    {
 
-   depth_counter++;
-
    if (nodesSeenOnPath.get(node->getNumber())){
       //printf("Internal Cycle Found with Method:%s\n", node->getStructure()->comp()->signature());
       return true;             // An internal cycle found
@@ -1214,9 +1212,9 @@ static bool findCycle2(TR_StructureSubGraphNode *node, TR_BitVector &regionNodes
    {
 
    if (nodesSeenOnPath.get(node->getNumber())){
-         if(node->getStructure()->comp()->getOption(TR_DisableZ13)){
-            printf("Internal Cycle Found with Method:%s\n", node->getStructure()->comp()->signature());
-         }
+      if(node->getStructure()->comp()->getOption(TR_DisableZ13)){
+         printf("Calling findCycle2 on method:%s\n", node->getStructure()->comp()->signature());
+      }
       return true;             // An internal cycle found
       }
    if (nodesCleared.get(node->getNumber())){
@@ -1264,22 +1262,7 @@ void TR_RegionStructure::checkForInternalCycles()
    for (auto itr = _subNodes.begin(), end = _subNodes.end(); itr != end; ++itr)
       regionNodes.set((*itr)->getNumber());
 
-   depth_counter = 0;
-
-   bool copy = findCycle2(getEntry(), regionNodes, nodesSeenOnPath, nodesCleared, getNumber());
-   bool actual = findCycle(getEntry(), regionNodes, nodesSeenOnPath, nodesCleared, getNumber());
-
-   if (comp()->getOption(TR_DisableZ13)){
-      printf("findCycle2: %s\n", copy ? "true" : "false");
-      printf("findCycle: %s\n", actual ? "true" : "false");
-   }
-
-
-   setContainsInternalCycles(actual);
-
-   if (comp()->getOption(TR_DisableZ13)){
-      printf("Current depth: %d \n",depth_counter);
-   }
+   setContainsInternalCycles(findCycle(getEntry(), regionNodes, nodesSeenOnPath, nodesCleared, getNumber()));
 
    }
 
