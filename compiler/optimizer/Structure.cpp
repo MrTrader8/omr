@@ -1197,6 +1197,42 @@ static bool findCycle(TR_StructureSubGraphNode *node, TR_BitVector &regionNodes,
    return false;
    }
 
+static bool findCycle2(TR_StructureSubGraphNode *node, TR_BitVector &regionNodes, TR_BitVector &nodesSeenOnPath, TR_BitVector &nodesCleared, int32_t entryNode)
+   {
+
+   if (nodesSeenOnPath.get(node->getNumber()))
+      return true;             // An internal cycle found
+   if (nodesCleared.get(node->getNumber()))
+      return false;            // This node is already known not to be in a cycle
+
+   nodesSeenOnPath.set(node->getNumber());
+
+   for (auto edge = node->getSuccessors().begin(); edge != node->getSuccessors().end(); ++edge)
+      {
+      TR_ASSERT((*edge)->getTo()->asStructureSubGraphNode(),"Expecting a CFG node which can be downcast to StructureSubGraphNode");
+      TR_StructureSubGraphNode *succ = toStructureSubGraphNode((*edge)->getTo());
+      if (node->getStructure()->comp()->getOption(TR_TraceNodeFlags)){
+         traceMsg(node->getStructure()->comp(), "findCycle2 subGraph: %d entryNode %d, regionNode: %d\n", succ->getNumber(), entryNode , regionNodes.get(succ->getNumber()));
+      }
+
+      if (succ->getNumber() != entryNode && regionNodes.get(succ->getNumber()) &&
+          findCycle2(succ,regionNodes,nodesSeenOnPath,nodesCleared,entryNode))
+         return true;
+      }
+   for (auto edge = node->getExceptionSuccessors().begin(); edge != node->getExceptionSuccessors().end(); ++edge)
+      {
+      TR_ASSERT((*edge)->getTo()->asStructureSubGraphNode(),"Expecting a CFG node which can be downcast to StructureSubGraphNode");
+      TR_StructureSubGraphNode *succ = toStructureSubGraphNode((*edge)->getTo());
+      if (/* succ->getNumber() != entryNode && */ regionNodes.get(succ->getNumber()) &&
+          findCycle2(succ,regionNodes,nodesSeenOnPath,nodesCleared,entryNode))
+         return true;
+      }
+
+   nodesSeenOnPath.reset(node->getNumber());
+   nodesCleared.set(node->getNumber());
+   return false;
+   }
+
 void TR_RegionStructure::checkForInternalCycles()
    {
    TR::StackMemoryRegion stackMemoryRegion(*trMemory());
@@ -1208,7 +1244,19 @@ void TR_RegionStructure::checkForInternalCycles()
    for (auto itr = _subNodes.begin(), end = _subNodes.end(); itr != end; ++itr)
       regionNodes.set((*itr)->getNumber());
 
+
    setContainsInternalCycles(findCycle(getEntry(), regionNodes, nodesSeenOnPath, nodesCleared, getNumber()));
+
+   if (comp()->getOption(TR_DisableZ13)){
+      TR_BitVector nodesSeenOnPath2(numNodes, stackMemoryRegion);
+      TR_BitVector nodesCleared2(numNodes, stackMemoryRegion);
+      TR_BitVector regionNodes2(numNodes, stackMemoryRegion);
+      for (auto itr = _subNodes.begin(), end = _subNodes.end(); itr != end; ++itr)
+         regionNodes2.set((*itr)->getNumber());
+
+      bool copy = findCycle2(getEntry(), regionNodes2, nodesSeenOnPath2, nodesCleared2, getNumber());
+   }
+
    }
 
 bool TR_RegionStructure::hasExceptionOutEdges()
