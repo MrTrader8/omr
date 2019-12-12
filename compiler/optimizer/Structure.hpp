@@ -292,8 +292,9 @@ class TR_StructureSubGraphNode : public TR::CFGNode
 
    virtual TR_StructureSubGraphNode *asStructureSubGraphNode();
 
-   private:
    TR_Structure *_structure;
+
+   private:
    };
 
 // **********************************************************************

@@ -1167,10 +1167,12 @@ void TR_RegionStructure::addGlobalRegisterCandidateToExits(TR_RegisterCandidate 
    }
 
 static bool findCycle(TR_StructureSubGraphNode *node, TR_BitVector &regionNodes, TR_BitVector &nodesSeenOnPath, TR_BitVector &nodesCleared, int32_t entryNode)
-   {
+   {   
    if (nodesSeenOnPath.get(node->getNumber()))
+      TR_ASSERT(false, "found a cycle");
       return true;             // An internal cycle found
    if (nodesCleared.get(node->getNumber()))
+      TR_ASSERT(false, "no cycle");
       return false;            // This node is already known not to be in a cycle
 
    nodesSeenOnPath.set(node->getNumber());
