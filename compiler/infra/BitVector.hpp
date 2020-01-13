@@ -145,7 +145,8 @@ class TR_SingleBitContainer
 enum TR_BitVectorGrowable
    {
    notGrowable,
-   growable
+   growable,
+   notGrowable2
    };
 
 // An optionally growable bit-vector

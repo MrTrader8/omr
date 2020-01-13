@@ -165,7 +165,7 @@ void TR_BitVector::setChunkSize(int32_t chunkSize)
          _firstChunkWithNonZero = chunkSize;
       }
 
-   TR_ASSERT(_growable == growable, "Bit vector is not growable");
+   TR_ASSERT_FATAL(_growable != notGrowable2, "Bit vector is not growable");
 
    chunk_t *newChunks = _region != NULL ? (chunk_t*)_region->allocate(chunkSize*sizeof(chunk_t)) : (chunk_t*)TR_Memory::jitPersistentAlloc(chunkSize*sizeof(chunk_t), TR_Memory::BitVector);
    memset(newChunks, 0, chunkSize*sizeof(chunk_t));

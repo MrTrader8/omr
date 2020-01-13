@@ -1202,9 +1202,9 @@ void TR_RegionStructure::checkForInternalCycles()
    TR::StackMemoryRegion stackMemoryRegion(*trMemory());
 
    int32_t numNodes = comp()->getFlowGraph()->getNextNodeNumber();
-   TR_BitVector nodesSeenOnPath(numNodes, stackMemoryRegion);
-   TR_BitVector nodesCleared(numNodes, stackMemoryRegion);
-   TR_BitVector regionNodes(numNodes, stackMemoryRegion);
+   TR_BitVector nodesSeenOnPath(numNodes, stackMemoryRegion,notGrowable2);
+   TR_BitVector nodesCleared(numNodes, stackMemoryRegion,notGrowable2);
+   TR_BitVector regionNodes(numNodes, stackMemoryRegion,notGrowable2);
    for (auto itr = _subNodes.begin(), end = _subNodes.end(); itr != end; ++itr)
       regionNodes.set((*itr)->getNumber());
 
