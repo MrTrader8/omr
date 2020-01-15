@@ -1205,6 +1205,8 @@ void TR_RegionStructure::checkForInternalCycles()
    TR_BitVector nodesSeenOnPath(numNodes, stackMemoryRegion,notGrowable2);
    TR_BitVector nodesCleared(numNodes, stackMemoryRegion,notGrowable2);
    TR_BitVector regionNodes(numNodes, stackMemoryRegion,notGrowable2);
+
+   printf("numNodes: %d\n",numNodes);
    for (auto itr = _subNodes.begin(), end = _subNodes.end(); itr != end; ++itr)
       regionNodes.set((*itr)->getNumber());
 
