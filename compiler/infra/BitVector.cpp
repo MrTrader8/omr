@@ -243,12 +243,15 @@ bool TR_BitContainer::hasMoreThanOneElement()
 
 int32_t TR_BitContainer::get(int32_t n)
    {
-   if (_type == bitvector && _bitVector)
+   if (_type == bitvector && _bitVector){
       return _bitVector->get(n);
-   else if (_type == bitvector)
+   }
+   else if (_type == bitvector){
       return 0;
-   else
+   }
+   else {
       return (_singleBit == n ? _singleBit : 0);
+   }
    }
 
 bool TR_BitContainer::intersects(TR_BitVector& v2)
